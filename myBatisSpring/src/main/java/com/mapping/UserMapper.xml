@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.UserMapper">
+	<resultMap id="BaseResultMap" type="com.model.User">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="phone" jdbcType="VARCHAR" property="phone" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, name, phone
+	</sql>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from tuser
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+	<insert id="insert" parameterType="com.model.User">
+		insert into tuser (id, name, phone
+		)
+		values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+		#{phone,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.model.User">
+		insert into tuser
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="phone != null">
+				phone,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				#{phone,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.model.User">
+		update tuser
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="phone != null">
+				phone = #{phone,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.model.User">
+		update tuser
+		set name = #{name,jdbcType=VARCHAR},
+		phone = #{phone,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from tuser
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+
+	<resultMap id="userAll" type="com.model.User" extends="BaseResultMap">
+		<collection property="roles" javaType="list" ofType="com.model.Role">
+			<id property="id" column="role_id" />
+			<result property="roleName" column="role_name" />
+		</collection>
+	</resultMap>
+
+	<select id="selectAll" resultMap="userAll">
+		SELECT
+		dbo.tuser.id,
+		dbo.tuser.name,
+		dbo.tuser.phone,
+		dbo.tuser_role.user_id,
+		dbo.tuser_role.role_id,
+		dbo.trole.id AS rId,
+		dbo.trole.role_name
+		FROM
+		dbo.tuser_role
+		INNER JOIN dbo.tuser ON dbo.tuser_role.user_id = dbo.tuser.id
+		INNER JOIN dbo.trole ON dbo.tuser_role.role_id = dbo.trole.id
+	</select>
+
+
+</mapper>
